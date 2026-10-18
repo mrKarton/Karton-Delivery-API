@@ -1,0 +1,8 @@
+{
+  "message.karton-delivery.deliveries-applied": "Новые предметы были доставлены в ваш инвентарь",
+  "message.karton-delivery.deliveries-unapplied": "Новые предметы не могут быть добавлены в ваш инвентарь. Выполните /delivery чтобы забрать их вручную",
+  "message.karton-delivery.delivery-sent": "Успешно отправлены предметы игроку %s",
+
+  "text.karton-delivery.title.delivery-gui-title": "Доставка",
+  "text.karton-delivery.from": "От %s"
+}

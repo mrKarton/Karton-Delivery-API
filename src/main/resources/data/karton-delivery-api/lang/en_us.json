@@ -1,0 +1,8 @@
+{
+  "message.karton-delivery.deliveries-applied": "New items are delivered to your inventory",
+  "message.karton-delivery.deliveries-unapplied": "You have deliveries that not applied because you don't have enough space in inventory run /delivery to get them manually",
+  "message.karton-delivery.delivery-sent": "Successfully sent items to %s",
+
+  "text.karton-delivery.title.delivery-gui-title": "Deliveries",
+  "text.karton-delivery.from": "From %s"
+}

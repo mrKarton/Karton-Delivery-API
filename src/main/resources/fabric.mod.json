@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "karton-delivery-api",
+	"version": "${version}",
+	"name": "Karton Delivery API",
+	"description": "",
+	"authors": [
+		"mrKarton"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/karton-delivery-api/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.karton.delivery.KartonDeliveryAPI"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*",
+		"fancy-gui": ">=0.3.2"
+	}
+}
