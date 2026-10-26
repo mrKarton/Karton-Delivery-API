@@ -1,0 +1,80 @@
+name: Publish release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: release-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      - name: Validate release version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          properties = {}
+          for line in Path("gradle.properties").read_text().splitlines():
+              line = line.strip()
+              if not line or line.startswith(("#", "!")):
+                  continue
+              key, separator, value = line.partition("=")
+              if separator:
+                  properties[key.strip()] = value.strip()
+
+          version = properties["version"]
+          tag = os.environ["RELEASE_TAG"]
+
+          if tag != f"{version}":
+              raise SystemExit(
+                  f"Tag {tag!r} must match project version: v{version}"
+              )
+
+          if version.endswith("-SNAPSHOT"):
+              raise SystemExit("A release must not use a SNAPSHOT version")
+          PY
+
+      - name: Build
+        run: ./gradlew --no-daemon clean build
+
+      - name: Publish Maven package
+        run: ./gradlew --no-daemon publishMavenJavaPublicationToGitHubPackagesRepository
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Attach JARs to GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" build/libs/*.jar --clobber

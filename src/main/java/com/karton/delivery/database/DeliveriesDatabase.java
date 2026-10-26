@@ -73,8 +73,6 @@ public class DeliveriesDatabase {
         }
     }
 
-    // Только вставка в БД, без изменения кэша.
-    // Вызывать в серверном потоке: здесь создаётся снимок предмета.
     public static CompletableFuture<Integer> sendAsync(
             DeliveryEntry delivery
     ) {
@@ -92,13 +90,10 @@ public class DeliveriesDatabase {
         }
     }
 
-    // Название сохранено для совместимости. Метод асинхронный!
-    // Вызывать в серверном потоке.
-    public static CompletableFuture<Integer> sendAndCahceSync(
+    public static CompletableFuture<Integer> sendAndCahceAsync(
             DeliveryEntry delivery
     ) {
         try {
-            // Сериализуем до передачи задачи в DB-поток.
             String itemJson = delivery.serializeItem();
             String sender = delivery.sender();
             String target = delivery.target();

@@ -1,11 +1,13 @@
 package com.karton.delivery.util;
 
 import com.karton.delivery.ServerContextHolder;
+import com.karton.delivery.commands.DeliveryCommand;
 import com.karton.delivery.database.DeliveryEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class PlayerInventoryUtil {
@@ -58,6 +60,54 @@ public class PlayerInventoryUtil {
                 Component.translatable(
                         "message.karton-delivery.deliveries-applied"
                 )
+                        .withStyle(
+                                ChatFormatting.GREEN
+                        )
+        );
+        return true;
+    }
+
+
+    public static boolean tryDeliverAtTheMoment(ArrayList<DeliveryEntry> deliveryEntries) {
+        if (deliveryEntries.stream().anyMatch(entry -> entry.id() != -1)) {
+            throw new IllegalArgumentException("Some of deliveries is registered in database and should be delivered using it's methods");
+        }
+
+        String target = deliveryEntries
+                .stream()
+                .map(DeliveryEntry::target)
+                .findFirst()
+                .orElseThrow();
+
+        ServerPlayer player = ServerContextHolder.getServerInstance()
+                .getPlayerList()
+                .getPlayer(target);
+
+        if (player == null) {
+            try {
+                UUID uuid = UUID.fromString(target);
+                player = ServerContextHolder.getServerInstance().getPlayerList().getPlayer(uuid);
+            } catch (IllegalArgumentException ignored) {
+                return false;
+            }
+        }
+
+        if (player == null) {
+            return false;
+        }
+
+        if (!hasFreeSlots(player, deliveryEntries.size())) {
+            return false;
+        }
+
+        for (DeliveryEntry entry : deliveryEntries) {
+            player.getInventory().add(entry.stack());
+        }
+
+        player.sendSystemMessage(
+                Component.translatable(
+                                "message.karton-delivery.deliveries-applied"
+                        )
                         .withStyle(
                                 ChatFormatting.GREEN
                         )
