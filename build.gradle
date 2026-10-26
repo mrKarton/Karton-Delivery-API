@@ -54,19 +54,49 @@ jar {
 	}
 }
 
-// configure the maven publication
 publishing {
 	publications {
 		create("mavenJava", MavenPublication) {
+			groupId = project.group.toString()
+			artifactId = "karton-delivery-api"
+			version = project.version.toString()
+
 			from components.java
+
+			pom {
+				name = "Karton Delivery API"
+				description = "A simple API that allows to send player items. (Even offline players)"
+				url = "https://github.com/mrKarton/Karton-Delivery-API"
+
+				licenses {
+					license {
+						name = "MIT"
+						url = "https://opensource.org/licenses/MIT"
+					}
+				}
+
+				scm {
+					url = "https://github.com/mrKarton/Karton-Delivery-API"
+					connection = "scm:git:https://github.com/mrKarton/Karton-Delivery-API.git"
+				}
+			}
 		}
 	}
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
 	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+		maven {
+			name = "GitHubPackages"
+			url = uri("https://maven.pkg.github.com/mrkarton/Fancy-GUI")
+
+			credentials {
+				username = providers.gradleProperty("gpr.user")
+						.orElse(providers.environmentVariable("GITHUB_ACTOR"))
+						.getOrNull()
+
+				password = providers.gradleProperty("gpr.key")
+						.orElse(providers.environmentVariable("GITHUB_TOKEN"))
+						.getOrNull()
+			}
+		}
 	}
 }
